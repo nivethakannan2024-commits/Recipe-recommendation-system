@@ -1,0 +1,172 @@
+/* ===============================
+   🍳 AI Recipe Recommender Style
+   =============================== */
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fffaf3;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  color: #d2691e;
+  font-size: 2.2rem;
+  margin-top: 20px;
+}
+
+.filter-section, .results {
+  max-width: 850px;
+  margin: 30px auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 600;
+  color: #444;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 6px;
+  font-size: 15px;
+  transition: all 0.2s ease-in-out;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #ffa500;
+  box-shadow: 0 0 5px rgba(255, 165, 0, 0.3);
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #e67600;
+  transform: translateY(-2px);
+}
+
+/* ===============================
+   🍲 Recipe Cards
+   =============================== */
+.recipe-card {
+  border-left: 6px solid #ff8c00;
+  background-color: #fff9f3;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.recipe-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.recipe-info {
+  flex: 1;
+}
+
+.recipe-info h3 {
+  color: #d2691e;
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.recipe-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+/* ===============================
+   🌙 Dark Mode
+   =============================== */
+body.dark-mode {
+  background-color: #1c1c1c;
+  color: #f5f5f5;
+}
+
+body.dark-mode .filter-section,
+body.dark-mode .results {
+  background-color: #2a2a2a;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.1);
+}
+
+body.dark-mode .recipe-card {
+  background-color: #333;
+  border-left-color: #ffa500;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #666;
+}
+/* ✅ Modal Styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  padding-top: 70px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.6);
+}
+
+.modal-box {
+  background-color: #fff;
+  margin: auto;
+  padding: 25px;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 600px;
+  animation: fadeIn 0.3s ease;
+}
+
+.close {
+  color: #ff4500;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #c0392b;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

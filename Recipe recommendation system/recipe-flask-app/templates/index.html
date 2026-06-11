@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Recipe Recommender</title>
+  <style>
+    :root {
+      --bg-color: #fdf6ec;
+      --text-color: #222;
+      --card-bg: #fff;
+      --button-bg: #ff8c00;
+      --button-hover: #e67e22;
+    }
+
+    body.dark-mode {
+      --bg-color: #121212;
+      --text-color: #f5f5f5;
+      --card-bg: #1e1e1e;
+      --button-bg: #00bcd4;
+      --button-hover: #0097a7;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--button-bg);
+      margin-bottom: 30px;
+    }
+
+    /* 🌙 Dark mode toggle button at top-right */
+    .toggle-container {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      color: var(--button-bg);
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 55px;
+      height: 28px;
+    }
+
+    .toggle-switch input {
+      display: none;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 28px;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 22px; width: 22px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--button-bg);
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(26px);
+    }
+
+    .filter-section, .results {
+      max-width: 800px;
+      margin: 80px auto 30px;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      background: transparent;
+      color: var(--text-color);
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: var(--button-bg);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--button-hover);
+    }
+
+    .recipe-card {
+      border: 1px solid #eee;
+      border-left: 5px solid var(--button-bg);
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      transition: transform 0.2s, background-color 0.3s;
+      cursor: pointer;
+      background: var(--card-bg);
+    }
+
+    .recipe-card:hover {
+      transform: scale(1.02);
+    }
+
+    .recipe-card h3 {
+      margin: 0;
+      color: var(--button-bg);
+    }
+
+    .recipe-card p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .recipe-img {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+      max-height: 250px;
+      object-fit: cover;
+    }
+
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: left;
+      transition: background-color 0.3s;
+    }
+
+    .close-btn {
+      float: right;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--button-bg);
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      color: var(--button-hover);
+    }
+
+    .modal-content h2 {
+      color: var(--button-bg);
+      margin-top: 0;
+    }
+
+    .modal-content p {
+      margin: 8px 0;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🌙 Toggle in top right corner -->
+  <div class="toggle-container">
+    <span id="modeIcon">🌞</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="darkModeToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <h1>🍽️ AI-Powered Recipe Recommender</h1>
+
+  <div class="filter-section">
+    <label for="diet">Select Diet:</label>
+    <select id="diet">
+      <option value="">-- All --</option>
+      <option value="Vegetarian">Vegetarian</option>
+      <option value="Non vegetarian">Non vegetarian</option>
+    </select>
+
+    <label for="ingredient">Search by Ingredient:</label>
+    <input type="text" id="ingredient" placeholder="e.g., paneer, chicken...">
+
+    <label for="cuisine">Cuisine Type:</label>
+    <input type="text" id="cuisine" placeholder="e.g., Indian, Chinese, Italian...">
+
+    <label for="time">Max Prep Time (minutes):</label>
+    <input type="number" id="time" min="1" placeholder="e.g., 30">
+
+    <button onclick="searchRecipes()">Search Recipes</button>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <!-- Modal for Recipe Details -->
+  <div id="recipeModal" class="modal">
+    <div class="modal-content" id="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+    </div>
+  </div>
+
+  <script>
+    // 🌗 DARK MODE TOGGLE + SAVE STATE
+    const toggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    const icon = document.getElementById('modeIcon');
+
+    // Load saved preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      body.classList.add('dark-mode');
+      toggle.checked = true;
+      icon.textContent = '🌙';
+    }
+
+    toggle.addEventListener('change', () => {
+      body.classList.toggle('dark-mode');
+      const isDark = body.classList.contains('dark-mode');
+      icon.textContent = isDark ? '🌙' : '🌞';
+      localStorage.setItem('darkMode', isDark);
+    });
+
+    // 🔍 SEARCH FUNCTIONALITY
+    async function searchRecipes() {
+      const diet = document.getElementById('diet').value;
+      const ingredient = document.getElementById('ingredient').value;
+      const cuisine = document.getElementById('cuisine').value;
+      const time = document.getElementById('time').value;
+
+      const query = new URLSearchParams({ diet, ingredient, cuisine, time });
+      const response = await fetch(`/search?${query}`);
+      const data = await response.json();
+
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+
+      if (!data.recipes || data.recipes.length === 0) {
+        resultsDiv.innerHTML = '<p>No recipes found.</p>';
+        return;
+      }
+
+      window.recipeData = data.recipes;
+
+      data.recipes.forEach((r, index) => {
+        const imgSrc = r.image && r.image.trim() !== ""
+          ? `/static/images/${r.image}`
+          : "/static/images/no-image.png";
+
+        resultsDiv.innerHTML += `
+          <div class="recipe-card" onclick="showRecipeDetails(${index})">
+            <img src="${imgSrc}" alt="${r.name}" class="recipe-img" onerror="this.src='/static/images/no-image.png'">
+            <h3>${r.name}</h3>
+            ${r.cuisine ? `<p><strong>Cuisine:</strong> ${r.cuisine}</p>` : ''}
+            <p><strong>Diet:</strong> ${r.diet || 'N/A'}</p>
+            <p><strong>Prep Time:</strong> ${r.prep_time || 'N/A'} mins</p>
+            <p><strong>Calories:</strong> ${r.calories || 'N/A'} kcal</p>
+          </div>`;
+      });
+    }
+
+    // 🍳 MODAL FUNCTIONALITY
+    function showRecipeDetails(index) {
+      const r = window.recipeData[index];
+      const imgSrc = r.image && r.image.trim() !== ""
+        ? `/static/images/${r.image}`
+        : "/static/images/no-image.png";
+
+      document.getElementById("modal-content").innerHTML = `
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <img src="${imgSrc}" alt="${r.name}" class="recipe-img" onerror="this.src='/static/images/no-image.png'">
+        <h2>${r.name}</h2>
+        ${r.cuisine ? `<p><strong>Cuisine:</strong> ${r.cuisine}</p>` : ''}
+        <p><strong>Diet:</strong> ${r.diet || 'N/A'}</p>
+        <p><strong>Ingredients:</strong> ${r.ingredients || 'N/A'}</p>
+        <p><strong>Prep Time:</strong> ${r.prep_time || 'N/A'} mins</p>
+        <p><strong>Calories:</strong> ${r.calories || 'Not available'}</p>
+        <p><strong>Instructions:</strong> ${r.instructions || 'N/A'}</p>
+      `;
+      document.getElementById("recipeModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("recipeModal").style.display = "none";
+    }
+  </script>
+</body>
+</html>
